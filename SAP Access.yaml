@@ -1,0 +1,234 @@
+  swagger: "2.0"
+  info: 
+    description: "SAP Gestão de Acessos"
+    version: "1.0"
+    title: "SAP Acessos"
+  host: "api.brf.com"
+  basePath: "/qas/sap_access/v1/"
+  schemes: 
+    - "https"
+  paths: 
+    /access/UserDetail/{userId}: 
+      get: 
+        summary: "User Detail"
+        description: "User Detail"
+        parameters: 
+          - 
+            name: "client_id"
+            in: "header"
+            description: "App client ID"
+            required: true
+            type: "string"
+          - 
+            name: "access_token"
+            in: "header"
+            description: "Access Token"
+            required: true
+            type: "string"
+          - 
+            name: "userId"
+            in: "path"
+            description: "User ID"
+            required: true
+            type: "string"
+          - 
+            name: "SYST"
+            in: "query"
+            description: "System Id"
+            required: true
+            type: "string"
+        responses: 
+          200: 
+            description: "OK"
+            schema: 
+              $ref: "#/definitions/UserDetailResponse"
+        x-resource-name: "User"
+        x-destination: null
+        x-timeout: null
+        x-api-broken: false
+        x-interceptors: {}
+      parameters: []
+    /access/UserChange: 
+      post: 
+        summary: "Change User"
+        description: "Change User"
+        parameters: 
+          - 
+            name: "client_id"
+            in: "header"
+            description: "API Gateway clientID"
+            required: true
+            type: "string"
+          - 
+            name: "access_token"
+            in: "header"
+            description: "Access Token"
+            required: true
+            type: "string"
+          - 
+            in: "body"
+            name: "body"
+            required: false
+            schema: 
+              $ref: "#/definitions/UserChange"
+        responses: 
+          200: 
+            description: "OK"
+            schema: 
+              $ref: "#/definitions/UserChangeResponse"
+        x-resource-name: "User"
+        x-destination: null
+        x-timeout: null
+        x-api-broken: false
+        x-interceptors: {}
+      parameters: []
+  definitions: 
+    UserDetailResponse: 
+      type: "object"
+      properties: 
+        item: 
+          type: "array"
+          items: 
+            $ref: "#/definitions/UserDetailResponseItem"
+    UserDetailResponseItem: 
+      type: "object"
+      properties: 
+        FUNCTIONNAME: 
+          type: "string"
+        DESCRIPTION: 
+          type: "string"
+        FROMDATE: 
+          type: "string"
+        ORG_FLAG: 
+          type: "string"
+        TODATE: 
+          type: "string"
+        BLOCKSTATUS: 
+          type: "number"
+        USERID: 
+          type: "string"
+        USERTYPE: 
+          type: "string"
+        USERTYPEDESC: 
+          type: "string"
+    UserChange: 
+      type: "object"
+      properties: 
+        SYST: 
+          type: "string"
+        USERNAME: 
+          type: "string"
+        LOGONDATA: 
+          $ref: "#/definitions/UserChangeLOGONDATA"
+        PASSWORD: 
+          $ref: "#/definitions/UserChangePASSWORD"
+        ADDRESS: 
+          $ref: "#/definitions/UserChangeADDRESS"
+        SNC: 
+          $ref: "#/definitions/UserChangeSNC"
+        ULOCK: 
+          type: "string"
+    UserChangeLOGONDATA: 
+      type: "object"
+      properties: 
+        GLTGV: 
+          type: "string"
+        GLTGB: 
+          type: "string"
+        USTYP: 
+          type: "string"
+        CLASS: 
+          type: "string"
+        ACCNT: 
+          type: "string"
+        TZONE: 
+          type: "string"
+        LTIME: 
+          type: "string"
+        BCODE: 
+          type: "string"
+        CODVN: 
+          type: "string"
+        PASSCODE: 
+          type: "string"
+        CODVC: 
+          type: "string"
+    UserChangePASSWORD: 
+      type: "object"
+      properties: 
+        BAPIPWD: 
+          type: "string"
+    UserChangeADDRESS: 
+      type: "object"
+      properties: 
+        FIRSTNAME: 
+          type: "string"
+        LASTNAME: 
+          type: "string"
+        DEPARTMENT: 
+          type: "string"
+        FUNCTION: 
+          type: "string"
+        E_MAIL: 
+          type: "string"
+        COMM_TYPE: 
+          type: "string"
+    UserChangeSNC: 
+      type: "object"
+      properties: 
+        PNAME: 
+          type: "string"
+    UserChangeResponse: 
+      type: "object"
+      properties: 
+        messages: 
+          type: "array"
+          items: 
+            $ref: "#/definitions/UserChangeResponseItem"
+    UserChangeResponseItem: 
+      type: "object"
+      properties: 
+        message: 
+          type: "string"
+        statusCode: 
+          type: "string"
+  x-destination: "$urlPIRest"
+  x-interceptors: 
+    1: 
+      x-interceptor-position: 1
+      x-interceptor-type: "LOG"
+      x-interceptor-content: "{\"acceptedTerms\":true,\"encryptContent\":false,\"encryptPathAndParameters\":false}"
+      x-interceptor-execution-point: "FIRST"
+      x-interceptor-status: "REFERENCE"
+    2: 
+      x-interceptor-position: 2
+      x-interceptor-type: "OAUTH"
+      x-interceptor-content: "{\"location\":\"HEADER_OR_COOKIE\",\"name\":\"Sensedia-Auth\",\"grantTypes\":[\"CLIENT_CREDENTIALS\"]}"
+      x-interceptor-execution-point: "FIRST"
+      x-interceptor-status: "REFERENCE"
+    3: 
+      x-interceptor-position: 3
+      x-interceptor-type: "CUSTOM"
+      x-interceptor-content: "{\"id\":4,\"name\":\"Auth SAP/PI\",\"script\":\"try {\\r\\n    let authCode = $call.environmentVariables.get('SAPPIAuthorizationCode');\\r\\n    $call.request.addHeader(\\\"Authorization\\\", \\\"Basic \\\" + authCode);\\r\\n} catch (e) {\\r\\n    $call.tracer.trace(e);\\r\\n}\",\"abort\":false,\"debug\":false,\"visibility\":{\"id\":64,\"visibilityType\":\"ORGANIZATION\",\"owner\":{\"id\":8,\"name\":\"Anderson Straube\",\"email\":\"anderson.straube@brf.com\",\"login\":\"anderson.straube@brf.com\",\"roles\":[{\"id\":-1,\"name\":\"Super Admin\",\"description\":\"Super users are able to do anything with the system features. Use it wisely.\",\"permissions\":[{\"id\":206,\"permission\":\"DASHBOARD\",\"type\":\"VIEW\"},{\"id\":207,\"permission\":\"ANALYTICS\",\"type\":\"VIEW\"},{\"id\":208,\"permission\":\"APIS_HEALTH\",\"type\":\"VIEW\"},{\"id\":209,\"permission\":\"APIS\",\"type\":\"VIEW\"},{\"id\":211,\"permission\":\"NOTIFICATIONS\",\"type\":\"VIEW\"},{\"id\":212,\"permission\":\"PLANS\",\"type\":\"VIEW\"},{\"id\":213,\"permission\":\"APPS\",\"type\":\"VIEW\"},{\"id\":214,\"permission\":\"ACCESS_TOKENS\",\"type\":\"VIEW\"},{\"id\":215,\"permission\":\"SECRETS\",\"type\":\"VIEW\"},{\"id\":216,\"permission\":\"DEVELOPERS\",\"type\":\"VIEW\"},{\"id\":217,\"permission\":\"TRACE\",\"type\":\"VIEW\"},{\"id\":218,\"permission\":\"ENVIRONMENTS\",\"type\":\"VIEW\"},{\"id\":219,\"permission\":\"CALLBACKS\",\"type\":\"VIEW\"},{\"id\":220,\"permission\":\"HEALTH_CHECKS\",\"type\":\"VIEW\"},{\"id\":221,\"permission\":\"USERS\",\"type\":\"VIEW\"},{\"id\":222,\"permission\":\"ROLES\",\"type\":\"VIEW\"},{\"id\":223,\"permission\":\"TEAMS\",\"type\":\"VIEW\"},{\"id\":224,\"permission\":\"AUDIT\",\"type\":\"VIEW\"},{\"id\":225,\"permission\":\"OAUTH\",\"type\":\"VIEW\"},{\"id\":226,\"permission\":\"LDAP\",\"type\":\"VIEW\"},{\"id\":227,\"permission\":\"ORGANIZATIONS\",\"type\":\"VIEW\"},{\"id\":228,\"permission\":\"TRACE_DECRYPT\",\"type\":\"VIEW\"},{\"id\":229,\"permission\":\"MFA\",\"type\":\"VIEW\"},{\"id\":230,\"permission\":\"CERTIFICATE\",\"type\":\"VIEW\"},{\"id\":231,\"permission\":\"ALERT\",\"type\":\"VIEW\"},{\"id\":232,\"permission\":\"MAIL_SETTINGS\",\"type\":\"VIEW\"},{\"id\":233,\"permission\":\"ANALYTICS\",\"type\":\"EDIT\"},{\"id\":234,\"permission\":\"APIS_HEALTH\",\"type\":\"EDIT\"},{\"id\":235,\"permission\":\"APIS\",\"type\":\"EDIT\"},{\"id\":237,\"permission\":\"NOTIFICATIONS\",\"type\":\"EDIT\"},{\"id\":238,\"permission\":\"PLANS\",\"type\":\"EDIT\"},{\"id\":239,\"permission\":\"APPS\",\"type\":\"EDIT\"},{\"id\":240,\"permission\":\"ACCESS_TOKENS\",\"type\":\"EDIT\"},{\"id\":241,\"permission\":\"SECRETS\",\"type\":\"EDIT\"},{\"id\":242,\"permission\":\"DEVELOPERS\",\"type\":\"EDIT\"},{\"id\":243,\"permission\":\"TRACE\",\"type\":\"EDIT\"},{\"id\":244,\"permission\":\"ENVIRONMENTS\",\"type\":\"EDIT\"},{\"id\":245,\"permission\":\"CALLBACKS\",\"type\":\"EDIT\"},{\"id\":246,\"permission\":\"HEALTH_CHECKS\",\"type\":\"EDIT\"},{\"id\":247,\"permission\":\"USERS\",\"type\":\"EDIT\"},{\"id\":248,\"permission\":\"ROLES\",\"type\":\"EDIT\"},{\"id\":249,\"permission\":\"TEAMS\",\"type\":\"EDIT\"},{\"id\":250,\"permission\":\"AUDIT\",\"type\":\"EDIT\"},{\"id\":251,\"permission\":\"OAUTH\",\"type\":\"EDIT\"},{\"id\":252,\"permission\":\"LDAP\",\"type\":\"EDIT\"},{\"id\":253,\"permission\":\"ORGANIZATIONS\",\"type\":\"EDIT\"},{\"id\":254,\"permission\":\"TRACE_DECRYPT\",\"type\":\"EDIT\"},{\"id\":255,\"permission\":\"MFA\",\"type\":\"EDIT\"},{\"id\":256,\"permission\":\"CERTIFICATE\",\"type\":\"EDIT\"},{\"id\":257,\"permission\":\"ALERT\",\"type\":\"EDIT\"},{\"id\":258,\"permission\":\"MAIL_SETTINGS\",\"type\":\"EDIT\"},{\"id\":261,\"permission\":\"DATA_OBFUSCATION\",\"type\":\"EDIT\"},{\"id\":262,\"permission\":\"CACHE_CONTROL\",\"type\":\"VIEW\"},{\"id\":263,\"permission\":\"CACHE_CONTROL\",\"type\":\"EDIT\"},{\"id\":264,\"permission\":\"ATTRIBUTES\",\"type\":\"EDIT\"},{\"id\":265,\"permission\":\"ATTRIBUTES\",\"type\":\"VIEW\"},{\"id\":270,\"permission\":\"WORKFLOW\",\"type\":\"EDIT\"},{\"id\":271,\"permission\":\"WORKFLOW\",\"type\":\"VIEW\"},{\"id\":276,\"permission\":\"IMPACT_ANALYSIS\",\"type\":\"EDIT\"},{\"id\":277,\"permission\":\"IMPACT_ANALYSIS\",\"type\":\"VIEW\"},{\"id\":285,\"permission\":\"API_CONNECTORS\",\"type\":\"VIEW\"},{\"id\":286,\"permission\":\"API_CONNECTORS\",\"type\":\"EDIT\"},{\"id\":407,\"permission\":\"INBOUND_ADDRESS\",\"type\":\"VIEW\"},{\"id\":408,\"permission\":\"INBOUND_ADDRESS\",\"type\":\"EDIT\"},{\"id\":411,\"permission\":\"EVENTS_HUB\",\"type\":\"VIEW\"},{\"id\":412,\"permission\":\"EVENTS_HUB\",\"type\":\"EDIT\"},{\"id\":416,\"permission\":\"OPEN_BANKING\",\"type\":\"VIEW\"},{\"id\":417,\"permission\":\"OPEN_BANKING\",\"type\":\"EDIT\"},{\"id\":420,\"permission\":\"INTEGRATIONS\",\"type\":\"VIEW\"},{\"id\":421,\"permission\":\"INTEGRATIONS\",\"type\":\"EDIT\"}]},{\"id\":6,\"name\":\"Admin\",\"description\":\"Admins are able to do anything, except see users tokens without mask. Use it wisely.\",\"permissions\":[{\"id\":141,\"permission\":\"DASHBOARD\",\"type\":\"VIEW\"},{\"id\":142,\"permission\":\"ANALYTICS\",\"type\":\"VIEW\"},{\"id\":143,\"permission\":\"APIS_HEALTH\",\"type\":\"VIEW\"},{\"id\":144,\"permission\":\"APIS\",\"type\":\"VIEW\"},{\"id\":146,\"permission\":\"NOTIFICATIONS\",\"type\":\"VIEW\"},{\"id\":147,\"permission\":\"PLANS\",\"type\":\"VIEW\"},{\"id\":148,\"permission\":\"APPS\",\"type\":\"VIEW\"},{\"id\":149,\"permission\":\"ACCESS_TOKENS\",\"type\":\"VIEW\"},{\"id\":150,\"permission\":\"DEVELOPERS\",\"type\":\"VIEW\"},{\"id\":151,\"permission\":\"TRACE\",\"type\":\"VIEW\"},{\"id\":152,\"permission\":\"ENVIRONMENTS\",\"type\":\"VIEW\"},{\"id\":153,\"permission\":\"CALLBACKS\",\"type\":\"VIEW\"},{\"id\":154,\"permission\":\"HEALTH_CHECKS\",\"type\":\"VIEW\"},{\"id\":155,\"permission\":\"USERS\",\"type\":\"VIEW\"},{\"id\":156,\"permission\":\"ROLES\",\"type\":\"VIEW\"},{\"id\":157,\"permission\":\"TEAMS\",\"type\":\"VIEW\"},{\"id\":158,\"permission\":\"AUDIT\",\"type\":\"VIEW\"},{\"id\":159,\"permission\":\"OAUTH\",\"type\":\"VIEW\"},{\"id\":160,\"permission\":\"LDAP\",\"type\":\"VIEW\"},{\"id\":162,\"permission\":\"ANALYTICS\",\"type\":\"EDIT\"},{\"id\":163,\"permission\":\"APIS_HEALTH\",\"type\":\"EDIT\"},{\"id\":164,\"permission\":\"APIS\",\"type\":\"EDIT\"},{\"id\":166,\"permission\":\"NOTIFICATIONS\",\"type\":\"EDIT\"},{\"id\":167,\"permission\":\"PLANS\",\"type\":\"EDIT\"},{\"id\":168,\"permission\":\"APPS\",\"type\":\"EDIT\"},{\"id\":169,\"permission\":\"ACCESS_TOKENS\",\"type\":\"EDIT\"},{\"id\":173,\"permission\":\"ENVIRONMENTS\",\"type\":\"EDIT\"},{\"id\":174,\"permission\":\"CALLBACKS\",\"type\":\"EDIT\"},{\"id\":175,\"permission\":\"HEALTH_CHECKS\",\"type\":\"EDIT\"},{\"id\":176,\"permission\":\"USERS\",\"type\":\"EDIT\"},{\"id\":177,\"permission\":\"ROLES\",\"type\":\"EDIT\"},{\"id\":178,\"permission\":\"TEAMS\",\"type\":\"EDIT\"},{\"id\":179,\"permission\":\"AUDIT\",\"type\":\"EDIT\"},{\"id\":180,\"permission\":\"OAUTH\",\"type\":\"EDIT\"},{\"id\":181,\"permission\":\"LDAP\",\"type\":\"EDIT\"},{\"id\":192,\"permission\":\"ALERT\",\"type\":\"VIEW\"},{\"id\":193,\"permission\":\"ALERT\",\"type\":\"EDIT\"},{\"id\":199,\"permission\":\"CERTIFICATE\",\"type\":\"EDIT\"},{\"id\":200,\"permission\":\"CERTIFICATE\",\"type\":\"VIEW\"},{\"id\":259,\"permission\":\"SECRETS\",\"type\":\"VIEW\"},{\"id\":260,\"permission\":\"SECRETS\",\"type\":\"EDIT\"},{\"id\":266,\"permission\":\"ATTRIBUTES\",\"type\":\"EDIT\"},{\"id\":267,\"permission\":\"ATTRIBUTES\",\"type\":\"VIEW\"},{\"id\":272,\"permission\":\"WORKFLOW\",\"type\":\"EDIT\"},{\"id\":273,\"permission\":\"WORKFLOW\",\"type\":\"VIEW\"},{\"id\":278,\"permission\":\"IMPACT_ANALYSIS\",\"type\":\"EDIT\"},{\"id\":279,\"permission\":\"IMPACT_ANALYSIS\",\"type\":\"VIEW\"},{\"id\":287,\"permission\":\"API_CONNECTORS\",\"type\":\"VIEW\"},{\"id\":288,\"permission\":\"API_CONNECTORS\",\"type\":\"EDIT\"},{\"id\":409,\"permission\":\"INBOUND_ADDRESS\",\"type\":\"VIEW\"},{\"id\":410,\"permission\":\"INBOUND_ADDRESS\",\"type\":\"EDIT\"},{\"id\":413,\"permission\":\"EVENTS_HUB\",\"type\":\"VIEW\"},{\"id\":414,\"permission\":\"EVENTS_HUB\",\"type\":\"EDIT\"},{\"id\":418,\"permission\":\"OPEN_BANKING\",\"type\":\"VIEW\"},{\"id\":419,\"permission\":\"OPEN_BANKING\",\"type\":\"EDIT\"},{\"id\":422,\"permission\":\"INTEGRATIONS\",\"type\":\"VIEW\"},{\"id\":423,\"permission\":\"INTEGRATIONS\",\"type\":\"EDIT\"}]}],\"teams\":[{\"id\":1,\"name\":\"Logística 4.0\",\"description\":null,\"creationDate\":null,\"users\":[],\"usersCount\":15},{\"id\":2,\"name\":\"BRF Global\",\"description\":null,\"creationDate\":null,\"users\":[],\"usersCount\":1},{\"id\":7,\"name\":\"Iuris\",\"description\":null,\"creationDate\":null,\"users\":[],\"usersCount\":2}],\"hasAllPermissions\":false,\"userType\":\"DATABASE\",\"traceEnvironments\":[],\"mfaSecret\":false,\"loginAttempts\":0,\"status\":\"ACTIVE\",\"lastLogin\":1649176318000},\"users\":[]},\"tags\":[\"SAP\"]}"
+      x-interceptor-execution-point: "FIRST"
+      x-interceptor-status: "REFERENCE"
+      x-interceptor-custom-interceptor-id: 4
+    4: 
+      x-interceptor-position: 4
+      x-interceptor-type: "LOG"
+      x-interceptor-content: "{\"acceptedTerms\":true,\"encryptContent\":false,\"encryptPathAndParameters\":false}"
+      x-interceptor-execution-point: "SECOND"
+      x-interceptor-status: "REFERENCE"
+  x-life-cycle: "AVAILABLE"
+  x-timeout: null
+  x-access-token-expires-in: 3600
+  x-resources: 
+    User: 
+      x-resource-description: "User"
+      x-destination: null
+      x-interceptors: {}
+      x-timeout: null
+      x-api-broken: false
+  x-api-broken: false
+  x-servers: 
+    3: "https://api.brf.com/qas/"
